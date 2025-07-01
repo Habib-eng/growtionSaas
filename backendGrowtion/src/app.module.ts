@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller'; // ✅ Add this import
 import { AppService } from './app.service';       // ✅ And this one too
 import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UsersModule } from './modules/users/users.module';
       }),
     }),
     UsersModule,
+    AuthModule,
     // other modules here
   ],
   controllers: [AppController],  // ✅ Register the controller
