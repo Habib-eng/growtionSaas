@@ -62,7 +62,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
         email: data.email,
         password: data.password,
       })
-      await router.navigate({ to: '/sign-in-2' })
+      await router.navigate({ to: '/sign-in' })
     } catch (error: unknown) {
       if (error instanceof Error) {
         alert(error.message || 'Sign up failed')

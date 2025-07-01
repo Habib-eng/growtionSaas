@@ -6,7 +6,7 @@ export const Route = createFileRoute('/_authenticated')({
   beforeLoad: () => {
     const token = localStorageManager.getToken()
     if (!token) {
-      throw redirect({ to: '/sign-in-2' })
+      throw redirect({ to: '/sign-in' })
     }
   },
   component: AuthenticatedLayout,
