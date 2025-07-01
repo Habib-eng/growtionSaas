@@ -51,4 +51,13 @@ export class UsersService {
     const user = await this.usersRepository.findOneBy({ email });
     return user === null ? undefined : user;
   }
+  async savePasswordResetToken(userId: number, token: string, expires: Date) {
+    await this.usersRepository.update(userId, {
+      resetToken: token,
+      resetTokenExpires: expires,
+    });
+  }
+  async findByResetToken(token: string) {
+    return this.usersRepository.findOne({ where: { resetToken: token } });
+  }
 }
