@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/modules/users/users.service';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -26,4 +27,22 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
     };
   }
+   async generatePasswordResetToken(user) {
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = new Date();
+    expires.setHours(expires.getHours() + 1); // 1 hour expiry
+
+    // Save token & expiry on the user, or a separate table
+    await this.usersService.savePasswordResetToken(user.id, token, expires);
+
+    return token;
+  }
+
+  async sendPasswordResetEmail(email: string, token: string) {
+    // should be fixed
+    const resetLink = `https://yourapp.com/reset-password?token=${token}`;
+    // Use MailService or Nodemailer here
+    console.log(`Send this link to ${email}: ${resetLink}`);
+  }
+  
 }

@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersService } from 'src/modules/users/users.service';
+import { SignInDto, SignUpDto } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -17,7 +18,7 @@ export class AuthController {
   ) {}
 
   @Post('signin')
-  async login(@Body() body: { email: string; password: string }) {
+  async login(@Body() body: SignInDto) {
     const user = await this.authService.validateUser(body.email, body.password);
     if (!user) {
       return { statusCode: 401, message: 'Invalid credentials' };
@@ -26,9 +27,7 @@ export class AuthController {
   }
 
   @Post('signup')
-  async signup(
-    @Body() body: { name: string; email: string; password: string },
-  ) {
+  async signup(@Body() body: SignUpDto) {
     try {
       const user = await this.usersService.createUser(
         body.name,
@@ -41,5 +40,33 @@ export class AuthController {
     } catch (error) {
       throw new BadRequestException(error.message);
     }
+  }
+  @Post('forgot-password')
+  async forgotPassword(@Body() body: { email: string }) {
+    try {
+      const user = await this.usersService.findByEmail(body.email);
+      if (!user) {
+        throw new BadRequestException('Email not found');
+      }
+
+      // Generate a reset token
+      const token = await this.authService.generatePasswordResetToken(user);
+
+      // Send the token via email
+      await this.authService.sendPasswordResetEmail(user.email, token);
+
+      return { message: 'Password reset instructions sent' };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  @Post('verify-reset-token')
+  async verifyResetToken(@Body() body: { token: string }) {
+    const user = await this.usersService.findByResetToken(body.token);
+    if (!user || user.resetTokenExpires < new Date()) {
+      return { valid: false };
+    }
+    return { valid: true };
   }
 }

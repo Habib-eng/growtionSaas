@@ -13,4 +13,10 @@ export class User {
 
   @Column({ nullable: true })
   password: string; // hashed password
+
+  @Column({ nullable: true })
+  resetToken: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  resetTokenExpires: Date;
 }
