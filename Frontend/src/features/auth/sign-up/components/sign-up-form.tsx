@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { PasswordInput } from '@/components/password-input'
+import { signUp } from '@/lib/api'
+import { useRouter } from '@tanstack/react-router'
 
 type SignUpFormProps = HTMLAttributes<HTMLFormElement>
 
@@ -41,6 +43,7 @@ const formSchema = z
 
 export function SignUpForm({ className, ...props }: SignUpFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -51,14 +54,24 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
     },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    // eslint-disable-next-line no-console
-    console.log(data)
-
-    setTimeout(() => {
+    try {
+      await signUp({
+        name: data.email.split('@')[0],
+        email: data.email,
+        password: data.password,
+      })
+      await router.navigate({ to: '/sign-in' })
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert(error.message || 'Sign up failed')
+      } else {
+        alert('Sign up failed')
+      }
+    } finally {
       setIsLoading(false)
-    }, 3000)
+    }
   }
 
   return (
