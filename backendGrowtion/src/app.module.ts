@@ -6,6 +6,10 @@ import { AppController } from './app.controller'; // ✅ Add this import
 import { AppService } from './app.service';       // ✅ And this one too
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { ContactsModule } from './modules/contacts/contacts.module';
+import { OrdersModule } from './modules/orders/orders.module';
+import { AccountsModule } from './modules/accounts/accounts.module';
+import { ProductsModule } from './modules/products/products.module';
 
 @Module({
   imports: [
@@ -26,6 +30,10 @@ import { AuthModule } from './auth/auth.module';
     }),
     UsersModule,
     AuthModule,
+    ContactsModule,
+    OrdersModule,
+    AccountsModule,
+    ProductsModule,
     // other modules here
   ],
   controllers: [AppController],  // ✅ Register the controller

@@ -2,29 +2,23 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 import { Account } from '../accounts/account.entity';
 
 @Entity()
-export class User {
+export class Product {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column({ unique: true })
-  email: string;
 
   @Column()
   name: string;
 
   @Column({ nullable: true })
-  password: string; // hashed password
+  description: string;
 
-  @Column({ nullable: true })
-  resetToken: string;
-
-  @Column({ type: 'timestamp', nullable: true })
-  resetTokenExpires: Date;
+  @Column('decimal', { precision: 10, scale: 2 })
+  price: number;
 
   @Column()
   accountId: number;
 
-  @ManyToOne(() => Account, account => account.users)
+  @ManyToOne(() => Account)
   @JoinColumn({ name: 'accountId' })
   account: Account;
 }

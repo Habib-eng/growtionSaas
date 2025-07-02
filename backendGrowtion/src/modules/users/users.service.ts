@@ -3,12 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Account } from '../accounts/account.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(Account)
+    private accountsRepository: Repository<Account>,
   ) {}
 
   async checkTable(): Promise<void> {
@@ -38,11 +41,16 @@ export class UsersService {
       throw new Error('User already exists');
     }
 
+    // Create a new account for the user
+    const account = this.accountsRepository.create({ name: 'myStore' });
+    await this.accountsRepository.save(account);
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = this.usersRepository.create({
       name,
       email,
       password: hashedPassword,
+      accountId: account.id,
     });
 
     return this.usersRepository.save(user);
