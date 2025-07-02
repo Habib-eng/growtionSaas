@@ -1,25 +1,38 @@
 import ViteLogo from '@/assets/vite.svg'
+import GrowtionLogo from '@/assets/Asset 1.svg'
+import GrowtionLogosmall from '@/assets/Asset 3.svg'
+import backgroundthing from '@/assets/background things.svg'
+import backgroundImage from '@/assets/background image.svg'
 import { UserAuthForm } from './components/user-auth-form'
 
 export default function SignIn() {
   return (
     <div className='relative container grid h-svh flex-col items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0'>
       <div className='bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-r'>
-        <div className='absolute inset-0 bg-zinc-900' />
-        <div className='relative z-20 flex items-center text-lg font-medium'>
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-            className='mr-2 h-6 w-6'
-          >
-            <path d='M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3' />
-          </svg>
-          Shadcn Admin
+        <div className='absolute inset-0 custom-gradient-bg' />
+        <img
+          src={backgroundthing}
+          alt='Background Things'
+          className='absolute inset-0 w-full h-full object-cover z-10 pointer-events-none select-none'
+          draggable='false'
+        />
+        {/* Centered image in front of background things, but behind content */}
+        <img
+          src={backgroundImage}
+          alt='Center Decoration'
+          className='absolute left-1/2 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2 max-w-[60%] max-h-[60%] pointer-events-none select-none opacity-80'
+          draggable='false'
+        />
+        <div className='relative z-20 flex flex-col justify-center items-center text-lg font-medium'>
+          <img
+            src={GrowtionLogo}
+            alt='Logo'
+            className='h-20 w-auto'
+            style={{ maxWidth: '400px' }}
+          />
+          <p className='mt-4 text-center text-base max-w-md'>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+          </p>
         </div>
 
         <img
@@ -32,19 +45,28 @@ export default function SignIn() {
 
         <div className='relative z-20 mt-auto'>
           <blockquote className='space-y-2'>
-            <p className='text-lg'>
+            {/* <p className='text-lg'>
               &ldquo;This template has saved me countless hours of work and
               helped me deliver stunning designs to my clients faster than ever
               before.&rdquo;
-            </p>
-            <footer className='text-sm'>John Doe</footer>
+            </p> */}
+            {/* <footer className='text-sm'>John Doe</footer> */}
           </blockquote>
+          <footer className='text-xs text-center text-white/70 mt-6'>
+            &copy; 2025 Growtion. All rights reserved.
+          </footer>
         </div>
       </div>
       <div className='lg:p-8'>
         <div className='mx-auto flex w-full flex-col justify-center space-y-2 sm:w-[350px]'>
-          <div className='flex flex-col space-y-2 text-left'>
-            <h1 className='text-2xl font-semibold tracking-tight'>Login</h1>
+          <div className='flex flex-col items-center space-y-2 text-center mb-4'>
+            <img
+              src={GrowtionLogosmall}
+              alt='Logo'
+              className='h-16 w-auto mb-2'
+              style={{ maxWidth: '120px' }}
+            />
+            <h1 className='text-3xl font-semibold tracking-tight'>Login</h1>
             <p className='text-muted-foreground text-sm'>
               Enter your email and password below <br />
               to log into your account
@@ -52,21 +74,13 @@ export default function SignIn() {
           </div>
           <UserAuthForm />
           <p className='text-muted-foreground px-8 text-center text-sm'>
-            By clicking login, you agree to our{' '}
+            Don't have an account?{' '}
             <a
-              href='/terms'
-              className='hover:text-primary underline underline-offset-4'
+              href='/sign-up'
+              className='text-primary font-semibold hover:underline underline-offset-4 transition-colors'
             >
-              Terms of Service
-            </a>{' '}
-            and{' '}
-            <a
-              href='/privacy'
-              className='hover:text-primary underline underline-offset-4'
-            >
-              Privacy Policy
+              Sign up for free
             </a>
-            .
           </p>
         </div>
       </div>
