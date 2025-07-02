@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Account } from '../accounts/account.entity';
 
 @Entity()
 export class User {
@@ -19,4 +20,11 @@ export class User {
 
   @Column({ type: 'timestamp', nullable: true })
   resetTokenExpires: Date;
+
+  @Column()
+  accountId: number;
+
+  @ManyToOne(() => Account, account => account.users)
+  @JoinColumn({ name: 'accountId' })
+  account: Account;
 }
