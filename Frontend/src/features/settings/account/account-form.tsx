@@ -30,17 +30,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { localStorageManager } from '@/lib/localStorageManager'
 
 const languages = [
   { label: 'English', value: 'en' },
   { label: 'French', value: 'fr' },
-  { label: 'German', value: 'de' },
-  { label: 'Spanish', value: 'es' },
-  { label: 'Portuguese', value: 'pt' },
-  { label: 'Russian', value: 'ru' },
-  { label: 'Japanese', value: 'ja' },
-  { label: 'Korean', value: 'ko' },
-  { label: 'Chinese', value: 'zh' },
+  { label: 'Arabic', value: 'ar' }
 ] as const
 
 const accountFormSchema = z.object({
@@ -75,6 +70,10 @@ export function AccountForm() {
 
   function onSubmit(data: AccountFormValues) {
     showSubmittedData(data)
+    if (data.language) {
+      localStorageManager.setSessionLanguage(data.language)
+      window.location.reload()
+    }
   }
 
   return (

@@ -12,4 +12,10 @@ export const localStorageManager = {
   removeToken() {
     localStorage.removeItem(TOKEN_KEY);
   },
+  setSessionLanguage(lang: string) {
+    sessionStorage.setItem('language', lang)
+  },
+  getSessionLanguage(): string | null {
+    return sessionStorage.getItem('language')
+  },
 };
