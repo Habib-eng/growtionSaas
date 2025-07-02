@@ -59,6 +59,11 @@ export const sidebarData: SidebarData = {
           title: 'Tasks',
           url: '/tasks',
           icon: IconChecklist,
+        }, 
+        {
+          title: 'Products',
+          url: '/Products',
+          icon: IconPackages,
         },
         {
           title: 'Apps',

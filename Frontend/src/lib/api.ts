@@ -23,3 +23,14 @@ export async function signIn({ email, password }: { email: string; password: str
   if (!response.ok) throw new Error(result.message || 'Sign in failed');
   return result;
 }
+
+export async function getProducts() {
+  const token = localStorage.getItem('token') || '';
+  const response = await fetch(`${API_BASE_URL}/products`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) throw new Error('Failed to fetch products');
+  return response.json();
+}
