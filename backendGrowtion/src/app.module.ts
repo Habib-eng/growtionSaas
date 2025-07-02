@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { ContactsModule } from './modules/contacts/contacts.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { AccountsModule } from './modules/accounts/accounts.module';
+import { ProductsModule } from './modules/products/products.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { AccountsModule } from './modules/accounts/accounts.module';
     ContactsModule,
     OrdersModule,
     AccountsModule,
+    ProductsModule,
     // other modules here
   ],
   controllers: [AppController],  // ✅ Register the controller

@@ -1,9 +1,10 @@
-import { HTMLAttributes, useState } from 'react'
+import { HTMLAttributes, useState, useRef } from 'react'
+import { toast } from 'sonner'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useRouter } from '@tanstack/react-router'
-import { IconBrandFacebook, IconBrandGithub } from '@tabler/icons-react'
+import { IconBrandFacebook, IconBrandGithub,IconBrandGoogle } from '@tabler/icons-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -38,6 +39,8 @@ const formSchema = z.object({
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = useState(false)
+  const [shake, setShake] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
   const router = useRouter()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -54,13 +57,28 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       const result = await signIn({ email: data.email, password: data.password })
       if (result.access_token) {
         localStorageManager.setToken(result.access_token)
+        toast.success('Login successful! Redirecting...', {
+          style: { fontSize: '1.5rem', background: '#fff', color: '#16a34a', border: '2px solid #16a34a' },
+          className: 'font-bold',
+          duration: 2500,
+        })
         await router.navigate({ to: '/' })
       }
     } catch (error: unknown) {
+      setShake(true)
+      setTimeout(() => setShake(false), 600)
       if (error instanceof Error) {
-        alert(error.message || 'Sign in failed')
+        toast.error(error.message || 'Sign in failed', {
+          style: { fontSize: '1.5rem', background: '#fff', color: '#dc2626', border: '2px solid #dc2626' },
+          className: 'font-bold animate-shake',
+          duration: 3500,
+        })
       } else {
-        alert('Sign in failed')
+        toast.error('Sign in failed', {
+          style: { fontSize: '1.5rem', background: '#fff', color: '#dc2626', border: '2px solid #dc2626' },
+          className: 'font-bold animate-shake',
+          duration: 3500,
+        })
       }
     } finally {
       setIsLoading(false)
@@ -70,8 +88,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   return (
     <Form {...form}>
       <form
+        ref={formRef}
         onSubmit={form.handleSubmit(onSubmit)}
-        className={cn('grid gap-3', className)}
+        className={cn('grid gap-3', className, shake && 'animate-shake')}
         {...props}
       >
         <FormField
@@ -106,7 +125,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             </FormItem>
           )}
         />
-        <Button className='mt-2' disabled={isLoading}>
+        <Button className='mt-2 bg-purple-600 hover:bg-purple-700 text-white' disabled={isLoading}>
           Login
         </Button>
 
@@ -121,12 +140,10 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           </div>
         </div>
 
-        <div className='grid grid-cols-2 gap-2'>
+        <div className='grid  gap-2'>
+          
           <Button variant='outline' type='button' disabled={isLoading}>
-            <IconBrandGithub className='h-4 w-4' /> GitHub
-          </Button>
-          <Button variant='outline' type='button' disabled={isLoading}>
-            <IconBrandFacebook className='h-4 w-4' /> Facebook
+            <IconBrandGoogle className='h-4 w-4' /> Google
           </Button>
         </div>
       </form>
