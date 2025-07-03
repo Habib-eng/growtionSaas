@@ -1,14 +1,13 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { AppService } from './app.service';
-import { JwtAuthGuard } from './auth/jwt-auth.guard';
-
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
-  getHello(): string {
-    return this.appService.getHello();
-  }
+  root(@Res() res: Response) {
+    const resContent = this.appService.getRootPageContent();
+    res.type('html').send(resContent);
+  };
 }

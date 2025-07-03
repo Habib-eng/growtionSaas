@@ -9,47 +9,13 @@ import {
 import { AuthService } from './auth.service';
 import { UsersService } from 'src/modules/users/users.service';
 import { SignInDto, SignUpDto } from './dto/auth.dto';
-import { ConfigService } from '@nestjs/config';
-import { OAuth2Client } from 'google-auth-library';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
     private usersService: UsersService,
-    private configService: ConfigService,
   ) {}
-  @Post('google')
-  async googleAuth(@Body() body: { token: string }) {
-    const client = new OAuth2Client(this.configService.get('GOOGLE_CLIENT_ID'));
-    let ticket;
-    try {
-      ticket = await client.verifyIdToken({
-        idToken: body.token,
-        audience: this.configService.get('GOOGLE_CLIENT_ID'),
-      });
-    } catch (err) {
-      throw new BadRequestException('Invalid Google token');
-    }
-    const payload = ticket.getPayload();
-    if (!payload || !payload.email) {
-      throw new BadRequestException('Google account has no email');
-    }
-    // Try to find user by email
-    let user = await this.usersService.findByEmail(payload.email);
-    if (!user) {
-      // Create user with Google info (fill missing fields as needed)
-      user = await this.usersService.createUser(
-        payload.name || 'Google User',
-        '', // country unknown
-        '', // phone unknown
-        payload.email,
-        '', // no password for Google users
-      );
-    }
-    // Return JWT or session as for normal login
-    return this.authService.login(user);
-  }
 
   @Post('signin')
   async login(@Body() body: SignInDto) {
@@ -63,11 +29,8 @@ export class AuthController {
   @Post('signup')
   async signup(@Body() body: SignUpDto) {
     try {
-      // Accept name, country, phone, email, password
       const user = await this.usersService.createUser(
         body.name,
-        body.country,
-        body.phone,
         body.email,
         body.password,
       );

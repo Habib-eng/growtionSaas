@@ -10,12 +10,30 @@ export class ProductsController {
 
   @UseGuards(JwtAuthGuard)
   @Get()
-  async getProducts(@Req() req): Promise<ProductListDto[]> {
+  async getProducts(@Req() req): Promise<{ data: ProductListDto[]; total: number; page: number; pageSize: number; }> {
     const user = req.user;
     if (!user || !user.accountId) {
       throw new Error('accountId not found in token');
     }
-    return this.productsService.getProductsByAccountId(user.accountId);
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
+    const { data: products, total } = await this.productsService.getPaginatedProductsByAccountId(
+      user.accountId,
+      page,
+      pageSize,
+      {
+        page,
+        pageSize,
+        search: req.query.search || '',
+        sort: req.query.sort || 'asc',
+      }
+    );
+    return {
+      data: products,
+      total,
+      page,
+      pageSize,
+    };
   }
 
   @UseGuards(JwtAuthGuard)
@@ -25,7 +43,7 @@ export class ProductsController {
     if (!user || !user.accountId) {
       throw new Error('accountId not found in token');
     }
-    const product = await this.productsService.getProductById(Number(id), user.accountId);
+    const product = await this.productsService.getProductById(id, user.accountId);
     if (!product) {
       throw new Error('Product not found');
     }

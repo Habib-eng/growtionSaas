@@ -16,14 +16,6 @@ export class SignUpDto {
   @IsNotEmpty()
   name: string;
 
-  @IsString()
-  @IsNotEmpty()
-  country: string;
-
-  @IsString()
-  @IsNotEmpty()
-  phone: string;
-
   @IsEmail()
   email: string;
 

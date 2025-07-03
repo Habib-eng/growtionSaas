@@ -3,8 +3,8 @@ import { Account } from '../accounts/account.entity';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
   @Column({ unique: true })
   email: string;
@@ -12,15 +12,8 @@ export class User {
   @Column()
   name: string;
 
-
   @Column({ nullable: true })
   password: string; // hashed password
-
-  @Column({ nullable: true })
-  country: string;
-
-  @Column({ nullable: true })
-  phone: string;
 
   @Column({ nullable: true })
   resetToken: string;

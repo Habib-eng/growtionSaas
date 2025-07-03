@@ -10,6 +10,7 @@ import { ContactsModule } from './modules/contacts/contacts.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { AccountsModule } from './modules/accounts/accounts.module';
 import { ProductsModule } from './modules/products/products.module';
+import { HealthController } from './health/health.controller';
 
 @Module({
   imports: [
@@ -36,7 +37,7 @@ import { ProductsModule } from './modules/products/products.module';
     ProductsModule,
     // other modules here
   ],
-  controllers: [AppController],  // ✅ Register the controller
+  controllers: [AppController, HealthController],  // ✅ Register the controller
   providers: [AppService],       // ✅ Register the service
 })
 export class AppModule {}
