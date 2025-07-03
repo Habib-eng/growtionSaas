@@ -33,6 +33,8 @@ export class UsersService {
 
   async createUser(
     name: string,
+    country: string,
+    phone: string,
     email: string,
     password: string,
   ): Promise<User> {
@@ -48,6 +50,8 @@ export class UsersService {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = this.usersRepository.create({
       name,
+      country,
+      phone,
       email,
       password: hashedPassword,
       accountId: account.id,
@@ -67,5 +71,13 @@ export class UsersService {
   }
   async findByResetToken(token: string) {
     return this.usersRepository.findOne({ where: { resetToken: token } });
+  }
+  async updateUserProfile(userId: number, data: { name: string; country: string; phone: string }) {
+    await this.usersRepository.update(userId, {
+      name: data.name,
+      country: data.country,
+      phone: data.phone,
+    });
+    return this.usersRepository.findOneBy({ id: userId });
   }
 }

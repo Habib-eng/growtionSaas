@@ -1,13 +1,13 @@
 import { HTMLAttributes, useState, useRef } from 'react'
-import { toast } from 'sonner'
+import { showSuccessToast, showErrorToast, showProfileIncompleteToast, showAccountCreatedToast } from '@/lib/toastUtils'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { IconBrandGoogle } from '@tabler/icons-react'
-import PhoneInput from 'react-phone-input-2'
-import 'react-phone-input-2/lib/style.css'
+import { PhoneInput } from '@/components/ui/phone-input'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import Select from 'react-select'
 import countryList from 'react-select-country-list'
 import {
@@ -83,27 +83,15 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
         email: data.email,
         password: data.password,
       })
-      toast.success('Account created! Please sign in.', {
-        style: { fontSize: '1.5rem', background: '#fff', color: '#16a34a', border: '2px solid #16a34a' },
-        className: 'font-bold',
-        duration: 2500,
-      })
+      showAccountCreatedToast();
       await router.navigate({ to: '/sign-in' })
     } catch (error: unknown) {
       setShake(true)
       setTimeout(() => setShake(false), 600)
       if (error instanceof Error) {
-        toast.error(error.message || 'Sign up failed', {
-          style: { fontSize: '1.5rem', background: '#fff', color: '#dc2626', border: '2px solid #dc2626' },
-          className: 'font-bold animate-shake',
-          duration: 3500,
-        })
+        showErrorToast(error.message || 'Sign up failed');
       } else {
-        toast.error('Sign up failed', {
-          style: { fontSize: '1.5rem', background: '#fff', color: '#dc2626', border: '2px solid #dc2626' },
-          className: 'font-bold animate-shake',
-          duration: 3500,
-        })
+        showErrorToast('Sign up failed');
       }
     } finally {
       setIsLoading(false)
@@ -140,7 +128,7 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
               <FormControl>
                 <Select
                   options={countryList().getData()}
-                  value={countryList().getData().find(option => option.value === field.value) || null}
+                  value={countryList().getData().find((option: { label: string; value: string }) => option.value === field.value) || null}
                   onChange={option => field.onChange(option ? option.value : '')}
                   classNamePrefix='react-select'
                   placeholder='Select country'
@@ -162,15 +150,11 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
             <FormItem>
               <FormLabel>Phone Number</FormLabel>
               <FormControl>
-                {/* @ts-ignore */}
                 <PhoneInput
-                  country={(form.watch('country')?.toLowerCase() || 'us') as string}
                   value={field.value}
                   onChange={field.onChange}
-                  inputClass='w-full !bg-background !text-foreground !border !rounded !px-3 !py-2'
-                  inputStyle={{ width: '100%' }}
-                  specialLabel=''
-                  enableSearch
+                  className="w-full"
+                  required
                 />
               </FormControl>
               <FormMessage />
@@ -283,9 +267,54 @@ export function SignUpForm({ className, ...props }: SignUpFormProps) {
         </div>
 
         <div className='grid gap-2'>
-          <Button variant='outline' type='button' disabled={isLoading}>
-            <IconBrandGoogle className='h-4 w-4' /> Google
-          </Button>
+          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+            <GoogleLogin
+              onSuccess={async (credentialResponse) => {
+                if (credentialResponse.credential) {
+                  // Send credential (JWT) to backend for verification and signup/login
+                  try {
+                    setIsLoading(true);
+                    // Example: call your backend endpoint
+                    const res = await fetch('/api/auth/google', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ token: credentialResponse.credential }),
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                      // Store JWT if present
+                      if (data.access_token) {
+                        localStorage.setItem('access_token', data.access_token);
+                      }
+                      // If user is missing country or phone, redirect to OTP (complete profile)
+                      if (!data.user || !data.user.country || !data.user.phone) {
+                        showProfileIncompleteToast();
+                        await router.navigate({ to: '/complete-profile' });
+                      } else {
+                        showSuccessToast('Signed up with Google! Redirecting...');
+                        await router.navigate({ to: '/' });
+                      }
+                    } else {
+                      showErrorToast(data.message || 'Google sign up failed');
+                    }
+                  } catch (err) {
+                    showErrorToast('Google sign up failed');
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }
+              }}
+              onError={() => {
+                showErrorToast('Google sign up failed');
+              }}
+              width='100%'
+              theme='outline'
+              text='signup_with'
+              shape='pill'
+              logo_alignment='left'
+              useOneTap
+            />
+          </GoogleOAuthProvider>
         </div>
       </form>
     </Form>

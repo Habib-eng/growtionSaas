@@ -21,6 +21,7 @@ import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
 import { Route as authOtpRouteImport } from './routes/(auth)/otp'
 import { Route as authForgotPasswordRouteImport } from './routes/(auth)/forgot-password'
+import { Route as authCompleteProfileRouteImport } from './routes/(auth)/complete-profile'
 import { Route as ClerkAuthenticatedRouteRouteImport } from './routes/clerk/_authenticated/route'
 import { Route as ClerkauthRouteRouteImport } from './routes/clerk/(auth)/route'
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
@@ -95,6 +96,11 @@ const authOtpRoute = authOtpRouteImport.update({
 const authForgotPasswordRoute = authForgotPasswordRouteImport.update({
   id: '/(auth)/forgot-password',
   path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const authCompleteProfileRoute = authCompleteProfileRouteImport.update({
+  id: '/(auth)/complete-profile',
+  path: '/complete-profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClerkAuthenticatedRouteRoute = ClerkAuthenticatedRouteRouteImport.update({
@@ -188,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/clerk/': typeof ClerkauthRouteRouteWithChildren
+  '/complete-profile': typeof authCompleteProfileRoute
   '/forgot-password': typeof authForgotPasswordRoute
   '/otp': typeof authOtpRoute
   '/sign-in': typeof authSignInRoute
@@ -214,6 +221,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/clerk': typeof ClerkAuthenticatedRouteRouteWithChildren
+  '/complete-profile': typeof authCompleteProfileRoute
   '/forgot-password': typeof authForgotPasswordRoute
   '/otp': typeof authOtpRoute
   '/sign-in': typeof authSignInRoute
@@ -245,6 +253,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/clerk/(auth)': typeof ClerkauthRouteRouteWithChildren
   '/clerk/_authenticated': typeof ClerkAuthenticatedRouteRouteWithChildren
+  '/(auth)/complete-profile': typeof authCompleteProfileRoute
   '/(auth)/forgot-password': typeof authForgotPasswordRoute
   '/(auth)/otp': typeof authOtpRoute
   '/(auth)/sign-in': typeof authSignInRoute
@@ -275,6 +284,7 @@ export interface FileRouteTypes {
     | '/clerk'
     | '/settings'
     | '/clerk/'
+    | '/complete-profile'
     | '/forgot-password'
     | '/otp'
     | '/sign-in'
@@ -301,6 +311,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/clerk'
+    | '/complete-profile'
     | '/forgot-password'
     | '/otp'
     | '/sign-in'
@@ -331,6 +342,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/clerk/(auth)'
     | '/clerk/_authenticated'
+    | '/(auth)/complete-profile'
     | '/(auth)/forgot-password'
     | '/(auth)/otp'
     | '/(auth)/sign-in'
@@ -359,6 +371,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ClerkRouteRoute: typeof ClerkRouteRouteWithChildren
+  authCompleteProfileRoute: typeof authCompleteProfileRoute
   authForgotPasswordRoute: typeof authForgotPasswordRoute
   authOtpRoute: typeof authOtpRoute
   authSignInRoute: typeof authSignInRoute
@@ -454,6 +467,13 @@ declare module '@tanstack/react-router' {
       path: '/forgot-password'
       fullPath: '/forgot-password'
       preLoaderRoute: typeof authForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/complete-profile': {
+      id: '/(auth)/complete-profile'
+      path: '/complete-profile'
+      fullPath: '/complete-profile'
+      preLoaderRoute: typeof authCompleteProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/clerk/_authenticated': {
@@ -663,6 +683,7 @@ const ClerkRouteRouteWithChildren = ClerkRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ClerkRouteRoute: ClerkRouteRouteWithChildren,
+  authCompleteProfileRoute: authCompleteProfileRoute,
   authForgotPasswordRoute: authForgotPasswordRoute,
   authOtpRoute: authOtpRoute,
   authSignInRoute: authSignInRoute,

@@ -8,6 +8,7 @@ import {
 } from '@tanstack/react-query'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
+import { Toaster } from '@/components/ui/sonner';
 import { useAuthStore } from '@/stores/authStore'
 import { handleServerError } from '@/utils/handle-server-error'
 import { FontProvider } from './context/font-context'
@@ -92,6 +93,8 @@ if (!rootElement.innerHTML) {
         <ThemeProvider defaultTheme='light' storageKey='vite-ui-theme'>
           <FontProvider>
             <RouterProvider router={router} />
+            {/* Global toast notifications (shadcn/ui Sonner) */}
+            <Toaster />
           </FontProvider>
         </ThemeProvider>
       </QueryClientProvider>

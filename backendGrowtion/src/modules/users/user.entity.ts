@@ -12,8 +12,15 @@ export class User {
   @Column()
   name: string;
 
+
   @Column({ nullable: true })
   password: string; // hashed password
+
+  @Column({ nullable: true })
+  country: string;
+
+  @Column({ nullable: true })
+  phone: string;
 
   @Column({ nullable: true })
   resetToken: string;

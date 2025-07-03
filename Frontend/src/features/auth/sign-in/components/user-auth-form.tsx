@@ -1,10 +1,12 @@
 import { HTMLAttributes, useState, useRef } from 'react'
-import { toast } from 'sonner'
+// Removed sonner import, using shadcn/ui Toaster via toastUtils
+import { showSuccessToast, showErrorToast } from '@/lib/toastUtils';
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useRouter } from '@tanstack/react-router'
-import { IconBrandFacebook, IconBrandGithub,IconBrandGoogle } from '@tabler/icons-react'
+import { IconBrandGoogle } from '@tabler/icons-react'
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -55,31 +57,28 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     setIsLoading(true)
     try {
       const result = await signIn({ email: data.email, password: data.password })
-      if (result.access_token) {
+      if (result && result.access_token) {
         localStorageManager.setToken(result.access_token)
-        toast.success('Login successful! Redirecting...', {
-          style: { fontSize: '1.5rem', background: '#fff', color: '#16a34a', border: '2px solid #16a34a' },
-          className: 'font-bold',
-          duration: 2500,
-        })
+        showSuccessToast('Login successful! Redirecting...')
         await router.navigate({ to: '/' })
+      } else if (result && result.message) {
+        // Backend returned a 401 or error object
+        setShake(true)
+        setTimeout(() => setShake(false), 600)
+        showErrorToast(result.message)
       }
     } catch (error: unknown) {
       setShake(true)
       setTimeout(() => setShake(false), 600)
-      if (error instanceof Error) {
-        toast.error(error.message || 'Sign in failed', {
-          style: { fontSize: '1.5rem', background: '#fff', color: '#dc2626', border: '2px solid #dc2626' },
-          className: 'font-bold animate-shake',
-          duration: 3500,
-        })
-      } else {
-        toast.error('Sign in failed', {
-          style: { fontSize: '1.5rem', background: '#fff', color: '#dc2626', border: '2px solid #dc2626' },
-          className: 'font-bold animate-shake',
-          duration: 3500,
-        })
+      let errorMsg = 'Sign in failed';
+      if (error && typeof error === 'object') {
+        if ('message' in error && typeof (error as any).message === 'string') {
+          errorMsg = (error as any).message;
+        } else if ('data' in error && (error as any).data && typeof (error as any).data === 'object' && 'message' in (error as any).data && typeof (error as any).data.message === 'string') {
+          errorMsg = (error as any).data.message;
+        }
       }
+      showErrorToast(errorMsg)
     } finally {
       setIsLoading(false)
     }
@@ -110,25 +109,18 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           control={form.control}
           name='password'
           render={({ field }) => (
-            <FormItem className='relative'>
+            <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <PasswordInput placeholder='********' {...field} />
               </FormControl>
               <FormMessage />
-              <Link
-                to='/forgot-password'
-                className='text-muted-foreground absolute -top-0.5 right-0 text-sm font-medium hover:opacity-75'
-              >
-                Forgot password?
-              </Link>
             </FormItem>
           )}
         />
         <Button className='mt-2 bg-purple-600 hover:bg-purple-700 text-white' disabled={isLoading}>
           Login
         </Button>
-
         <div className='relative my-2'>
           <div className='absolute inset-0 flex items-center'>
             <span className='w-full border-t' />
@@ -139,12 +131,46 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             </span>
           </div>
         </div>
-
-        <div className='grid  gap-2'>
-          
-          <Button variant='outline' type='button' disabled={isLoading}>
-            <IconBrandGoogle className='h-4 w-4' /> Google
-          </Button>
+        <div className='grid gap-2'>
+          <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+            <GoogleLogin
+              onSuccess={async (credentialResponse) => {
+                if (credentialResponse.credential) {
+                  try {
+                    setIsLoading(true);
+                    const res = await fetch('/api/auth/google', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ token: credentialResponse.credential }),
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                      if (data.access_token) {
+                        localStorage.setItem('access_token', data.access_token);
+                      }
+                      showSuccessToast('Signed in with Google! Redirecting...');
+                      await router.navigate({ to: '/' });
+                    } else {
+                      showErrorToast(data.message || 'Google sign in failed');
+                    }
+                  } catch (err) {
+                    showErrorToast('Google sign in failed');
+                  } finally {
+                    setIsLoading(false);
+                  }
+                }
+              }}
+              onError={() => {
+                showErrorToast('Google sign in failed');
+              }}
+              width='100%'
+              theme='outline'
+              text='signin_with'
+              shape='pill'
+              logo_alignment='left'
+              useOneTap
+            />
+          </GoogleOAuthProvider>
         </div>
       </form>
     </Form>
